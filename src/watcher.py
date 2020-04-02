@@ -42,7 +42,7 @@ def start_filewatch(callback):
     patterns = config.get('file_watch').get('patterns')
 
     logger.info(f'Start watching files in {path}, patterns {patterns}')
-    event_handler = MyHandler(patterns=patterns, source=config.get('analyzer').get('source'), callback=callback)
+    event_handler = MyHandler(patterns=patterns, source=config.get('source'), callback=callback)
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
     observer.start() # Thread starts
