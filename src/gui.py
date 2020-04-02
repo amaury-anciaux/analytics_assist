@@ -1,9 +1,11 @@
 import logging
 import wx
+import wx.adv
 import wx.dataview as dv
 from src.configuration import read_configuration
 from src.watcher import start_filewatch
-import coloredlogs
+from src import __version__
+#import coloredlogs
 import sys
 import ctypes
 
@@ -60,6 +62,7 @@ class CheckResultModel(dv.PyDataViewModel):
         else:
             return 'test'
 
+
 class MainFrame(wx.Frame):
     """
     A Frame that says Hello World
@@ -100,13 +103,34 @@ class MainFrame(wx.Frame):
         # and a status bar
         self.CreateStatusBar()
         self.SetStatusText("Welcome to wxPython!")
+        self.Bind(wx.EVT_ICONIZE, self.onMinimize)
+        self.Bind(wx.EVT_CLOSE, self.onMinimize)
         self.logger = logging.getLogger(__name__)
 
+        #self.SetTopWindow(frame)
+        self.tbIcon = TaskBarIcon(self, 'icon.png')
+
     def update_tree(self, workflow_path, data):
-        self.tree.DeleteAllItems()
+        nb_rows=self.tree.GetItemCount()
+        to_delete=[]
+        for i in range(nb_rows-1, -1, -1):
+            print(i)
+            if self.tree.GetTextValue(i, 0)==str(workflow_path):
+                to_delete.append(i)
+
+        for i in to_delete:
+            self.tree.DeleteItem(i)
+
         if data != True:
             for i in data:
                 self.tree.AppendItem([str(workflow_path), i['error_level'], i['location'], i['message'], i['rule']])
+            self.tbIcon.ShowBalloon("Analytics Pilot", f"{len(data)} error(s) were detected in workflow \"{workflow_path.name}\"",
+                             flags=wx.ICON_ERROR)
+        self.tree.Refresh()
+
+
+    def clear_tree(self):
+        self.tree.DeleteAllItems()
         self.tree.Refresh()
 
 
@@ -121,8 +145,8 @@ class MainFrame(wx.Frame):
         fileMenu = wx.Menu()
         # The "\t..." syntax defines an accelerator key that also triggers
         # the same event
-        helloItem = fileMenu.Append(-1, "&Hello...\tCtrl-H",
-                "Help string shown in status bar for this menu item")
+        helloItem = fileMenu.Append(-1, "&Clear\tCtrl-C",
+                "Clears all workflow information.")
         fileMenu.AppendSeparator()
         # When using a stock ID we don't need to specify the menu item's
         # label
@@ -153,19 +177,61 @@ class MainFrame(wx.Frame):
 
     def OnExit(self, event):
         """Close the frame, terminating the application."""
+        self.tbIcon.Destroy()
         self.Close(True)
 
 
     def OnHello(self, event):
         """Say hello to the user."""
-        wx.MessageBox("Hello again from wxPython")
+        self.clear_tree()
 
 
     def OnAbout(self, event):
         """Display an About Dialog"""
-        wx.MessageBox("This is a wxPython Hello World sample",
-                      "About Hello World 2",
+        wx.MessageBox(f"Data@Work\nAnalytics Pilot version: {__version__}",
+                      "Analytics Pilot",
                       wx.OK|wx.ICON_INFORMATION)
+
+    def onMinimize(self, event):
+        """
+        When minimizing, hide the frame so it "minimizes to tray"
+        """
+        self.Hide()
+
+
+
+def create_menu_item(menu, label, func):
+    item = wx.MenuItem(menu, -1, label)
+    menu.Bind(wx.EVT_MENU, func, id=item.GetId())
+    menu.Append(item)
+    return item
+
+
+class TaskBarIcon(wx.adv.TaskBarIcon):
+    def __init__(self, frame, path):
+        self.frame = frame
+        super(TaskBarIcon, self).__init__()
+        icon = wx.Icon(path)
+        self.SetIcon(icon, 'Restore')
+        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_down)
+
+    def CreatePopupMenu(self):
+        menu = wx.Menu()
+        create_menu_item(menu, 'Open', self.on_left_down)
+        menu.AppendSeparator()
+        create_menu_item(menu, 'Exit', self.on_exit)
+        return menu
+
+
+    def on_left_down(self, event):
+        self.frame.Show()
+        self.frame.Restore()
+
+
+    def on_exit(self, event):
+        self.frame.Destroy()
+        wx.CallAfter(self.Destroy)
+        self.frame.Close()
 
 
 def launch():
