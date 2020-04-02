@@ -1,10 +1,15 @@
-from src.gui import launch
-import coloredlogs
-from src.configuration import read_configuration
+import logging
 import sys
+import coloredlogs
 import argparse
+
+from src.gui import launch
+import wx
+from src import __version__
+from src.configuration import read_configuration
 from pyupdater.client import Client
 from client_config import ClientConfig
+
 
 def parse_args(argv):
     """
@@ -27,26 +32,37 @@ def print_status_info(info):
     status = info.get(u'status')
     print(downloaded, total, status)
 
-if __name__ == '__main__':
+def update():
+    logger = logging.getLogger(__name__)
     client_config = ClientConfig()
     client = Client(client_config)
     client.refresh()
 
     client.add_progress_hook(print_status_info)
-    app_update = client.update_check(client_config.APP_NAME, '0.1')
-    print(app_update)
-    if app_update is not None:
+    app_update = client.update_check(client_config.APP_NAME, "0.4")
 
-        app_update.download()
-        if app_update.is_downloaded():
-            print('downloaded, extracting')
-            app_update.extract_overwrite()
+    if app_update is not None:
+        logger.info(f'There is an update for the app, current version: {__version__}, new version: {app_update.version}')
+        #app_update.download()
         if app_update.is_downloaded():
             print('extracted, restarting')
-            app_update.extract_restart()
+            #app_update.extract_restart()
+
+if __name__ == '__main__':
     args = parse_args(sys.argv)
 
+    # Set logs
+    log_format = '%(asctime)s %(hostname)s %(name)s[%(process)d] %(levelname)s %(message)s'
+    logging.basicConfig(level=logging.INFO, format=log_format)
+
+    coloredlogs.install(level=logging.INFO, stream=sys.stdout, fmt=log_format)
+    logger = logging.getLogger(__name__)
+
     config=read_configuration()
-    coloredlogs.install(level=config.get('logging').get('level'), stream=sys.stdout, fmt='%(asctime)s %(name)s %(levelname)s %(message)s')
+    logger.info(f"Logging level set to {config.get('logging').get('level')}")
+    coloredlogs.set_level(config.get('logging').get('level'))
+
+    # Update the app
+    update()
 
     launch()
