@@ -1,0 +1,23 @@
+## Python package files
+*.pyc
+
+# Packages #
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+## Pyupdater
+.pyupdater/
+dist/
+pyu-data/
+build/
+
+.idea/
+venv/
+
+config/
