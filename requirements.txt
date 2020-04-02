@@ -4,6 +4,4 @@ networkx
 coloredlogs
 toml
 pyinstaller
-win10toast
-pywin32 # For win10toast
 pyupdater
