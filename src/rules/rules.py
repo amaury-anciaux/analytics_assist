@@ -12,13 +12,14 @@ def verify_rules(nodes, containers, source=None):
     if source == 'Alteryx':
         for n in nodes.items():
             if n[1].get('settings') is not None:
-                path = Path(n[1].get('Macro', ''))
-                if path.is_absolute():
-                    errors.append({
-                            'rule':'All macros need to have a relative file path.',
-                            'location': f'#{n[0]}',
-                            'message': f'Macro path is: {path}',
-                            'error_level': 'ERROR'})
+                if n[1].get('settings').get('Macro') is not None:
+                    path = Path(n[1].get('settings').get('Macro'))
+                    if path.is_absolute():
+                        errors.append({
+                                'rule':'All macros need to have a relative file path.',
+                                'location': f'#{n[0]}',
+                                'message': f'Macro path is: {path}',
+                                'error_level': 'ERROR'})
 
 
         for n in nodes.items():
