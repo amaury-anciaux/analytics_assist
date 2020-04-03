@@ -71,6 +71,8 @@ class MainFrame(wx.Frame):
     def __init__(self, *args, **kw):
         # ensure the parent's __init__ is called
         super(MainFrame, self).__init__(*args, **kw)
+        icon = wx.Icon('icon.png')
+        self.SetIcon(icon)
 
 
         # create a panel in the frame
@@ -102,19 +104,17 @@ class MainFrame(wx.Frame):
 
         # and a status bar
         self.CreateStatusBar()
-        self.SetStatusText("Welcome to wxPython!")
+        self.SetStatusText("")
         self.Bind(wx.EVT_ICONIZE, self.onMinimize)
         self.Bind(wx.EVT_CLOSE, self.onMinimize)
         self.logger = logging.getLogger(__name__)
 
-        #self.SetTopWindow(frame)
         self.tbIcon = TaskBarIcon(self, 'icon.png')
 
     def update_tree(self, workflow_path, data):
         nb_rows=self.tree.GetItemCount()
         to_delete=[]
         for i in range(nb_rows-1, -1, -1):
-            print(i)
             if self.tree.GetTextValue(i, 0)==str(workflow_path):
                 to_delete.append(i)
 
@@ -126,6 +126,7 @@ class MainFrame(wx.Frame):
                 self.tree.AppendItem([str(workflow_path), i['error_level'], i['location'], i['message'], i['rule']])
             self.tbIcon.ShowBalloon("Analytics Pilot", f"{len(data)} error(s) were detected in workflow \"{workflow_path.name}\"",
                              flags=wx.ICON_ERROR)
+            self.RequestUserAttention()
         self.tree.Refresh()
 
 
@@ -188,7 +189,7 @@ class MainFrame(wx.Frame):
 
     def OnAbout(self, event):
         """Display an About Dialog"""
-        wx.MessageBox(f"Data@Work\nAnalytics Pilot version: {__version__}",
+        wx.MessageBox(f"Analytics Pilot by Data@Work\nhttps://www.data-at-work.ch\nVersion: {__version__}\nIcons by Icons8: https://icons8.com",
                       "Analytics Pilot",
                       wx.OK|wx.ICON_INFORMATION)
 
@@ -213,6 +214,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         super(TaskBarIcon, self).__init__()
         icon = wx.Icon(path)
         self.SetIcon(icon, 'Restore')
+
         self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_down)
 
     def CreatePopupMenu(self):
@@ -225,6 +227,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
 
     def on_left_down(self, event):
         self.frame.Show()
+        self.frame.Raise()
         self.frame.Restore()
 
 
