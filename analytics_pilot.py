@@ -39,14 +39,17 @@ def update():
     client.refresh()
 
     client.add_progress_hook(print_status_info)
-    app_update = client.update_check(client_config.APP_NAME, "0.4")
+    app_update = client.update_check(client_config.APP_NAME, __version__)
 
     if app_update is not None:
         logger.info(f'There is an update for the app, current version: {__version__}, new version: {app_update.version}')
-        #app_update.download()
+        app_update.download()
         if app_update.is_downloaded():
-            print('extracted, restarting')
-            #app_update.extract_restart()
+            logger.info('Extracting and restarting')
+            app_update.extract_restart()
+    else:
+        logger.info(
+            f'App is up to date, current version: {__version__}')
 
 if __name__ == '__main__':
     args = parse_args(sys.argv)
