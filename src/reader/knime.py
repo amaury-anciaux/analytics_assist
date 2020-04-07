@@ -25,11 +25,9 @@ class Reader:
 
     @staticmethod
     def read_node_type(node_xml):
-        if Reader.is_metanode(node_xml):
+        if Reader.is_knime_metanode(node_xml):
             node_type = node_xml.find(xmlns + "entry[@key='node_type']").get('value')
-            if node_type == "MetaNode":
-                raise Exception(f'Unknown metanode type: #{Reader.read_node_id(node_xml)}')
-            elif node_type == "SubNode":
+            if node_type == "MetaNode" or node_type == "SubNode":
                 return node_xml.find(xmlns + "entry[@key='name']").get('value')
             elif node_type == "TempNode":
                 raise Exception(f'Unknown metanode type: #{Reader.read_node_id(node_xml)}')
@@ -41,16 +39,15 @@ class Reader:
     @staticmethod
     def load_node_extra_settings(node_xml, workflow_path):
         # Extend node XML with settings.xml
+        # Note: metanodes don't have a settings.xml file. Wrapped metanodes do.
         node_settings_file = node_xml.find(xmlns + "entry[@key='node_settings_file']").get('value')
         file_path = Path(workflow_path) / Path(node_settings_file)
         tree = ET.ElementTree(file=file_path)
         settings_root = tree.getroot()
         settings_root.extend(node_xml)
-        if Reader.is_metanode(node_xml):
+        if Reader.is_knime_metanode(node_xml):
             node_type = node_xml.find(xmlns + "entry[@key='node_type']").get('value')
-            if node_type == "MetaNode":
-                raise Exception(f'Unknown metanode type: #{Reader.read_node_id(node_xml)}')
-            elif node_type == "SubNode":
+            if node_type == "MetaNode" or node_type == "SubNode":
                 # Extend node XML with workflow.knime of metanode
                 workflow_path = file_path.parent
                 workflow_xml_path = Path(workflow_path) / Path('workflow.knime')
@@ -87,7 +84,11 @@ class Reader:
         :param node_xml:
         :return:
         """
-        return elementtree_to_dict(node_xml.find(xmlns + "config[@key='model']"))
+        node_config = node_xml.find(xmlns + "config[@key='model']")
+        if node_config != None:
+            return elementtree_to_dict(node_config)
+        else:
+            return {}
 
     # def is_node_documentation(node_xml):
     #     return node_xml.find('GuiSettings').get('Plugin') == 'AlteryxGuiToolkit.TextBox.TextBox'
@@ -98,6 +99,14 @@ class Reader:
 
     @staticmethod
     def is_metanode(node_xml):
+        if Reader.is_knime_metanode(node_xml):
+            node_type = node_xml.find(xmlns + "entry[@key='node_type']").get('value')
+            return node_type == "SubNode"
+        else:
+            return False
+
+    @staticmethod
+    def is_knime_metanode(node_xml):
         return node_xml.find(xmlns + "entry[@key='node_is_meta']").get('value') == 'true'
 
     @staticmethod
