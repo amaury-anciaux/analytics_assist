@@ -4,7 +4,9 @@ import wx.adv
 import wx.dataview as dv
 from src.configuration import read_configuration
 from src.watcher import start_filewatch
+from src.analyzer import analyze_workflow
 from src import __version__
+from pathlib import Path
 #import coloredlogs
 import sys
 import ctypes
@@ -73,6 +75,7 @@ class MainFrame(wx.Frame):
         super(MainFrame, self).__init__(*args, **kw)
         icon = wx.Icon('icon.png')
         self.SetIcon(icon)
+        self.source = config = read_configuration().get('source')
 
 
         # create a panel in the frame
@@ -124,7 +127,7 @@ class MainFrame(wx.Frame):
         if data != True:
             for i in data:
                 self.tree.AppendItem([str(workflow_path), i['error_level'], i['location'], i['message'], i['rule']])
-            self.tbIcon.ShowBalloon("Analytics Pilot", f"{len(data)} error(s) were detected in workflow \"{workflow_path.name}\"",
+            self.tbIcon.ShowBalloon("Analytics Assist", f"{len(data)} error(s) were detected in workflow \"{workflow_path.name}\"",
                              flags=wx.ICON_ERROR)
             self.RequestUserAttention()
         self.tree.Refresh()
@@ -148,6 +151,8 @@ class MainFrame(wx.Frame):
         # the same event
         helloItem = fileMenu.Append(-1, "&Clear\tCtrl-C",
                 "Clears all workflow information.")
+        openItem = fileMenu.Append(-1, "&Scan workflow...\tCtrl-S",
+                                    "Manually scan a workflow.")
         fileMenu.AppendSeparator()
         # When using a stock ID we don't need to specify the menu item's
         # label
@@ -174,6 +179,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnHello, helloItem)
         self.Bind(wx.EVT_MENU, self.OnExit,  exitItem)
         self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
+        self.Bind(wx.EVT_MENU, self.OnScan, openItem)
 
 
     def OnExit(self, event):
@@ -189,8 +195,8 @@ class MainFrame(wx.Frame):
 
     def OnAbout(self, event):
         """Display an About Dialog"""
-        wx.MessageBox(f"Analytics Pilot by Data@Work\nhttps://www.data-at-work.ch\nVersion: {__version__}\nIcons by Icons8: https://icons8.com",
-                      "Analytics Pilot",
+        wx.MessageBox(f"Analytics Assist by Data@Work\nhttps://www.data-at-work.ch\nVersion: {__version__}\nIcons by Icons8: https://icons8.com",
+                      "Analytics Assist",
                       wx.OK|wx.ICON_INFORMATION)
 
     def onMinimize(self, event):
@@ -199,6 +205,15 @@ class MainFrame(wx.Frame):
         """
         self.Hide()
 
+    def OnScan(self, event):
+        if self.source == 'Alteryx':
+            dlg = wx.FileDialog(self, "Choose workflow")
+        else:
+            dlg = wx.DirDialog(None, "Choose workflow directory", "", wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+
+        out = dlg.ShowModal()
+        if out == wx.ID_OK:
+            self.update_tree(Path(dlg.GetPath()), analyze_workflow(dlg.GetPath()))
 
 
 def create_menu_item(menu, label, func):
@@ -246,7 +261,7 @@ def launch():
 
     # Create app
     app = wx.App()
-    frm = MainFrame(None, title='Analytics Pilot')
+    frm = MainFrame(None, title='Analytics Assist')
     frm.Show()
 
     # Start watcher
