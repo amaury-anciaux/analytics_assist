@@ -6,7 +6,7 @@ Create a Python 3.7 virtual environment and install requirements.txt.
 `activate .\venv`
 
 ## PyInstaller
-`pyinstaller analytics_pilot.spec`
+`pyinstaller analytics_assist.spec`
 
 ## PyUpdater
 
@@ -15,7 +15,8 @@ Create a Python 3.7 virtual environment and install requirements.txt.
 - `pyupdater init`
 - `pyupdater keys -i` 
 - `pyupdater settings --plugin s3`
-  - Bucket name: analytics-pilot-app
+  - Bucket name: analytics-assist-app
+  - Bucket key: [empty]
   - Bucket region: eu-central-1
 
 ### Update version

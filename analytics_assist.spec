@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['analytics_pilot.py'],
-             pathex=['C:\\git\\analytics_pilot'],
+a = Analysis(['analytics_assist.py'],
+             pathex=['C:\\git\\analytics_assist'],
              binaries=[],
              datas=[('icon.png', '.')],
              hiddenimports=['pkg_resources.py2_warn'],
@@ -21,7 +21,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='analytics_pilot',
+          name='analytics_assist',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -34,4 +34,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='analytics_pilot')
+               name='analytics_assist')
