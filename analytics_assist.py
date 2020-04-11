@@ -1,10 +1,9 @@
 import logging
 import sys
-import coloredlogs
 import argparse
+import os
 
 from src.gui import launch
-import wx
 from src import __version__
 from src.configuration import read_configuration
 from pyupdater.client import Client
@@ -51,21 +50,36 @@ def update():
         logger.info(
             f'App is up to date, current version: {__version__}')
 
-if __name__ == '__main__':
-    args = parse_args(sys.argv)
+def get_stream_handler():
+    for h in logging.getLogger().handlers:
+        if isinstance(h, logging.StreamHandler):
+            return h
+    return logging.StreamHandler()
 
-    # Set logs
-    log_format = '%(asctime)s %(hostname)s %(name)s[%(process)d] %(levelname)s %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_format)
-
-    coloredlogs.install(level=logging.INFO, stream=sys.stdout, fmt=log_format)
+def setup_logging():
+    log_format = '%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s'
+    ch = get_stream_handler()
+    logging_formatter = logging.Formatter(log_format)
+    ch.setFormatter(logging_formatter)
+    logging.getLogger().addHandler(ch)
     logger = logging.getLogger(__name__)
+
+    # fh = logging.FileHandler('debug.log')
+    # fh.setLevel(logging.DEBUG)
+    # logging_formatter = logging.Formatter(log_format)
+    # fh.setFormatter(logging_formatter)
+    # logging.getLogger().addHandler(fh)
 
     config=read_configuration()
     logger.info(f"Logging level set to {config.get('logging').get('level')}")
-    coloredlogs.set_level(config.get('logging').get('level'))
+    logger.setLevel(config.get('logging').get('level'))
 
-    # Update the app
+if __name__ == '__main__':
+    # Changes to application directory, to ensure subsequent paths can be relative
+    os.chdir(os.path.dirname(sys.argv[0]))
+
+    args = parse_args(sys.argv)
+
+    setup_logging()
     update()
-
     launch()
