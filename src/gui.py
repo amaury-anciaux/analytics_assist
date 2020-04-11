@@ -7,9 +7,9 @@ from src.watcher import start_filewatch
 from src.analyzer import analyze_workflow
 from src import __version__
 from pathlib import Path
-#import coloredlogs
 import sys
 import ctypes
+import winreg
 
 
 class CheckResultModel(dv.PyDataViewModel):
@@ -263,6 +263,14 @@ def launch():
     app = wx.App()
     frm = MainFrame(None, title='Analytics Assist')
     frm.Show()
+
+    # determine if application is a script file or frozen exe
+    if getattr(sys, 'frozen', False):
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', 0,
+                             winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, 'Analytics Assist', 0,
+                          winreg.REG_SZ, sys.executable)  # file_path is path of file after coping it
 
     # Start watcher
     thread = start_filewatch(frm.update_tree)
