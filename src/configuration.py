@@ -55,7 +55,11 @@ class Configuration:
     def get_configuration(self):
         return self.config
 
-config = Configuration(path = user_file)
+
+config = None
 
 def read_configuration(path=user_file):
+    global config
+    if config is None:
+        config = Configuration(path=user_file)
     return config.get_configuration()
