@@ -5,3 +5,4 @@ coloredlogs
 toml
 pyinstaller
 pyupdater
+winreg
