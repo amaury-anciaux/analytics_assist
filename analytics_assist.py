@@ -6,6 +6,7 @@ import os
 from src.gui import launch
 from src import __version__
 from src.configuration import read_configuration
+from src.system import set_autostart, is_frozen_app
 from pyupdater.client import Client
 from client_config import ClientConfig
 
@@ -74,6 +75,19 @@ def setup_logging():
     logger.info(f"Logging level set to {config.get('logging').get('level')}")
     logger.setLevel(config.get('logging').get('level'))
 
+def autostart():
+    logger = logging.getLogger(__name__)
+    config = read_configuration()
+    if not is_frozen_app():
+        logger.info('App not frozen, auto start ignored.')
+    else:
+        if config.get('auto_start', True):
+            logger.info('Setting auto-start.')
+            set_autostart(True)
+        else:
+            logger.info('Removing auto-start.')
+            set_autostart(False)
+
 if __name__ == '__main__':
     # Changes to application directory, to ensure subsequent paths can be relative
     os.chdir(os.path.dirname(sys.argv[0]))
@@ -82,4 +96,5 @@ if __name__ == '__main__':
 
     setup_logging()
     update()
+    autostart()
     launch()

@@ -36,7 +36,7 @@ class Configuration:
             with open(user_file, 'w') as f:
                 default_config = {'source': get_source(),
                                   'logging': {'level': 'ERROR'},
-
+                                  'auto_start': True,
                                   'file_watch': {'paths': [get_workflow_path()]}}
 
                 toml.dump(default_config, f)
