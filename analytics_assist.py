@@ -2,7 +2,7 @@ import logging
 import sys
 import argparse
 import os
-
+import wx
 from src.gui import launch
 from src import __version__
 from src.configuration import read_configuration
@@ -26,19 +26,21 @@ def parse_args(argv):
     return parser.parse_args(argv[1:])
 
 
-def print_status_info(info):
+def update_progress(info, d):
     total = info.get(u'total')
     downloaded = info.get(u'downloaded')
-    status = info.get(u'status')
-    print(downloaded, total, status)
+    d.Update(downloaded/total*100)
 
 def update():
+    app=wx.App()
+    d=wx.ProgressDialog('Updating Analytics Assist', 'Checking for updates, the application will restart automatically.')
+    d.Show()
     logger = logging.getLogger(__name__)
     client_config = ClientConfig()
     client = Client(client_config)
     client.refresh()
 
-    client.add_progress_hook(print_status_info)
+    client.add_progress_hook(lambda x: update_progress(x, d))
     app_update = client.update_check(client_config.APP_NAME, __version__)
 
     if app_update is not None:
@@ -46,10 +48,12 @@ def update():
         app_update.download()
         if app_update.is_downloaded():
             logger.info('Extracting and restarting')
-            app_update.extract_restart()
+            #app_update.extract_restart()
+            d.Destroy()
     else:
         logger.info(
             f'App is up to date, current version: {__version__}')
+        d.Destroy()
 
 def get_stream_handler():
     for h in logging.getLogger().handlers:
@@ -73,7 +77,7 @@ def setup_logging():
 
     config=read_configuration()
     logger.info(f"Logging level set to {config.get('logging').get('level')}")
-    logger.setLevel(config.get('logging').get('level'))
+    ch.setLevel(config.get('logging').get('level'))
 
 def autostart():
     logger = logging.getLogger(__name__)
