@@ -184,6 +184,7 @@ class MainFrame(wx.Frame):
         """Close the frame, terminating the application."""
         self.tbIcon.Destroy()
         self.Close(True)
+        self.Destroy()
 
 
     def OnHello(self, event):
