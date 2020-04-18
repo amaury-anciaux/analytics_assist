@@ -5,6 +5,7 @@ import wx.dataview as dv
 from src.configuration import read_configuration
 from src.watcher import start_filewatch
 from src.analyzer import analyze_workflow
+from src.rules.rules import get_error_fields
 from src import __version__
 from pathlib import Path
 import ctypes
@@ -88,11 +89,14 @@ class MainFrame(wx.Frame):
         m = CheckResultModel(data)
         t2=dv.DataViewCtrl()
         #t2.AssociateModel(m)
-        c1=self.tree.AppendTextColumn("Workflow", width= wx.COL_WIDTH_AUTOSIZE)
-        c2 = self.tree.AppendTextColumn("Severity", width=wx.COL_WIDTH_AUTOSIZE)
-        c2=self.tree.AppendTextColumn("Location", width= wx.COL_WIDTH_AUTOSIZE)
-        c2 = self.tree.AppendTextColumn("Message", width=wx.COL_WIDTH_AUTOSIZE)
-        c3=self.tree.AppendTextColumn("Rule", width= wx.COL_WIDTH_AUTOSIZE)
+        columns = [self.tree.AppendTextColumn('Workflow', width=wx.COL_WIDTH_AUTOSIZE)]
+        for (field, text) in get_error_fields():
+            columns.append(self.tree.AppendTextColumn(text, width= wx.COL_WIDTH_AUTOSIZE))
+        # c1=self.tree.AppendTextColumn("Workflow", width= wx.COL_WIDTH_AUTOSIZE)
+        # c2 = self.tree.AppendTextColumn("Severity", width=wx.COL_WIDTH_AUTOSIZE)
+        # c2=self.tree.AppendTextColumn("Location", width= wx.COL_WIDTH_AUTOSIZE)
+        # c2 = self.tree.AppendTextColumn("Message", width=wx.COL_WIDTH_AUTOSIZE)
+        # c3=self.tree.AppendTextColumn("Rule", width= wx.COL_WIDTH_AUTOSIZE)
 
         #sizer.Add(tree, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
         sizer.Add(self.tree, 1, wx.EXPAND, 0)
@@ -124,7 +128,10 @@ class MainFrame(wx.Frame):
 
         if data != True:
             for i in data:
-                self.tree.AppendItem([str(workflow_path), i['error_level'], i['location'], i['message'], i['rule']])
+                display_item = [str(workflow_path)]
+                for (field, text) in get_error_fields():
+                    display_item.append(i[field])
+                self.tree.AppendItem(display_item)
             self.tbIcon.ShowBalloon("Analytics Assist", f"{len(data)} error(s) were detected in workflow \"{workflow_path.name}\"",
                              flags=wx.ICON_ERROR)
             self.RequestUserAttention()

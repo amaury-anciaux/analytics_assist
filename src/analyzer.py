@@ -11,6 +11,6 @@ def analyze_workflow(workflow_path):
     logger.info(f'Analyzing workflow: {workflow_path}')
     graph = WorkflowGraph(workflow_path, '', source)
     graph.build()
-    errors = verify_rules(graph.nodes, graph.containers, source)
+    errors = verify_rules(graph.nodes, graph.containers)
     logger.info(f'Errors generated: {errors}')
     return errors
