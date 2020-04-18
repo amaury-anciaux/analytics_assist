@@ -32,28 +32,32 @@ def update_progress(info, d):
     d.Update(downloaded/total*100)
 
 def update():
-    app=wx.App()
-    d=wx.ProgressDialog('Updating Analytics Assist', 'Checking for updates, the application will restart automatically.')
-    d.Show()
     logger = logging.getLogger(__name__)
-    client_config = ClientConfig()
-    client = Client(client_config)
-    client.refresh()
-
-    client.add_progress_hook(lambda x: update_progress(x, d))
-    app_update = client.update_check(client_config.APP_NAME, __version__)
-
-    if app_update is not None:
-        logger.info(f'There is an update for the app, current version: {__version__}, new version: {app_update.version}')
-        app_update.download()
-        if app_update.is_downloaded():
-            logger.info('Extracting and restarting')
-            #app_update.extract_restart()
-            d.Destroy()
+    if not is_frozen_app():
+        logger.info('App not frozen, app update ignored.')
     else:
-        logger.info(
-            f'App is up to date, current version: {__version__}')
-        d.Destroy()
+        app=wx.App()
+        d=wx.ProgressDialog('Updating Analytics Assist', 'Checking for updates, the application will restart automatically.')
+        d.Show()
+        logger = logging.getLogger(__name__)
+        client_config = ClientConfig()
+        client = Client(client_config)
+        client.refresh()
+
+        client.add_progress_hook(lambda x: update_progress(x, d))
+        app_update = client.update_check(client_config.APP_NAME, __version__)
+
+        if app_update is not None:
+            logger.info(f'There is an update for the app, current version: {__version__}, new version: {app_update.version}')
+            app_update.download()
+            if app_update.is_downloaded():
+                logger.info('Extracting and restarting')
+                #app_update.extract_restart()
+                d.Destroy()
+        else:
+            logger.info(
+                f'App is up to date, current version: {__version__}')
+            d.Destroy()
 
 def get_stream_handler():
     for h in logging.getLogger().handlers:
