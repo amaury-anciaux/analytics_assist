@@ -1,4 +1,24 @@
+def elementtree_to_dict(element):
+    node = dict()
 
+    text = getattr(element, 'text', None)
+    if text is not None:
+        node['text'] = text
+
+    node.update(element.attrib) # element's attributes
+
+    child_nodes = {}
+    for child in element: # element's children
+        child_nodes.setdefault(child.tag, []).append( elementtree_to_dict(child) )
+
+    # convert all single-element lists into non-lists
+    for key, value in child_nodes.items():
+        if len(value) == 1:
+             child_nodes[key] = value[0]
+
+    node.update(child_nodes.items())
+
+    return node
 class Reader:
     def __init__(self):
         pass
@@ -20,7 +40,11 @@ class Reader:
 
     @staticmethod
     def read_node_type(node_xml):
-        return node_xml.find('GuiSettings').get('Plugin')
+        xml_value = node_xml.find('GuiSettings').get('Plugin')
+        if xml_value is not None:
+            return xml_value.rpartition('.')[2]
+        else:
+            return 'Unknown'
 
     @staticmethod
     def read_node_position(node_xml):
@@ -44,11 +68,12 @@ class Reader:
         :param node_xml:
         :return:
         """
-        configuration = {}
-        for i in node_xml.find('Properties/Configuration'):
-            configuration[i.tag] = i.attrib
-            configuration[i.tag]['text'] = i.text
-        return configuration
+
+        node_config = node_xml.find('Properties/Configuration')
+        if node_config != None:
+            return elementtree_to_dict(node_config)
+        else:
+            return {}
 
     @staticmethod
     def is_node_documentation(node_xml):
