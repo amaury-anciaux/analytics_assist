@@ -1,3 +1,9 @@
+# 0.2.1
+## Added
+- When log level set to DEBUG, logs are written to analytics_assist.log
+## Fixed
+- Re-enabled auto update
+
 # 0.2
 ## Added
 - Reduce columns in the GUI to be simpler
