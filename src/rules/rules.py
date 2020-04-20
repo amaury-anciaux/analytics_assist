@@ -13,6 +13,7 @@ elif config.get('source') == 'Knime':
 else:
     raise Exception('Source software unknown.')
 
+
 def get_error_fields():
     return rules.get_error_fields()
 

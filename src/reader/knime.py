@@ -39,7 +39,6 @@ class Reader:
     #         return node_xml.find('ChildNodes').findall('Node')
     #     except AttributeError:
     #         return None
-    from src.reader.common import elementtree_to_dict
 
     @staticmethod
     def read_node_id(node_xml):
