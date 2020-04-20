@@ -73,15 +73,16 @@ def setup_logging():
     logging.getLogger().addHandler(ch)
     logger = logging.getLogger(__name__)
 
-    # fh = logging.FileHandler('debug.log')
-    # fh.setLevel(logging.DEBUG)
-    # logging_formatter = logging.Formatter(log_format)
-    # fh.setFormatter(logging_formatter)
-    # logging.getLogger().addHandler(fh)
-
     config=read_configuration()
     logger.info(f"Logging level set to {config.get('logging').get('level')}")
     ch.setLevel(config.get('logging').get('level'))
+
+    if config.get('logging').get('level') == 'DEBUG':
+        fh = logging.FileHandler('analytics_assist.log')
+        fh.setLevel(logging.DEBUG)
+        logging_formatter = logging.Formatter(log_format)
+        fh.setFormatter(logging_formatter)
+        logging.getLogger().addHandler(fh)
 
 def autostart():
     logger = logging.getLogger(__name__)
