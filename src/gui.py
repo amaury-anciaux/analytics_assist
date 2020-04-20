@@ -74,7 +74,7 @@ class MainFrame(wx.Frame):
         super(MainFrame, self).__init__(*args, **kw)
         icon = wx.Icon('icon.png')
         self.SetIcon(icon)
-        self.source = config = read_configuration().get('source')
+        self.source = read_configuration().get('source')
 
 
         # create a panel in the frame
@@ -92,11 +92,6 @@ class MainFrame(wx.Frame):
         columns = [self.tree.AppendTextColumn('Workflow', width=wx.COL_WIDTH_AUTOSIZE)]
         for (field, text) in get_error_fields():
             columns.append(self.tree.AppendTextColumn(text, width= wx.COL_WIDTH_AUTOSIZE))
-        # c1=self.tree.AppendTextColumn("Workflow", width= wx.COL_WIDTH_AUTOSIZE)
-        # c2 = self.tree.AppendTextColumn("Severity", width=wx.COL_WIDTH_AUTOSIZE)
-        # c2=self.tree.AppendTextColumn("Location", width= wx.COL_WIDTH_AUTOSIZE)
-        # c2 = self.tree.AppendTextColumn("Message", width=wx.COL_WIDTH_AUTOSIZE)
-        # c3=self.tree.AppendTextColumn("Rule", width= wx.COL_WIDTH_AUTOSIZE)
 
         #sizer.Add(tree, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
         sizer.Add(self.tree, 1, wx.EXPAND, 0)
@@ -128,6 +123,7 @@ class MainFrame(wx.Frame):
 
         if data != True:
             for i in data:
+
                 display_item = [str(workflow_path)]
                 for (field, text) in get_error_fields():
                     display_item.append(i[field])
@@ -211,6 +207,7 @@ class MainFrame(wx.Frame):
         """
         self.Hide()
 
+
     def OnScan(self, event):
         if self.source == 'Alteryx':
             dlg = wx.FileDialog(self, "Choose workflow")
@@ -247,9 +244,9 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
 
 
     def on_left_down(self, event):
+        self.frame.Iconize(False)
         self.frame.Show()
         self.frame.Raise()
-        self.frame.Restore()
 
 
     def on_exit(self, event):
