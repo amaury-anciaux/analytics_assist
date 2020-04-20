@@ -97,9 +97,6 @@ def autostart():
             set_autostart(False)
 
 if __name__ == '__main__':
-    # Changes to application directory, to ensure subsequent paths can be relative
-    os.chdir(os.path.dirname(sys.argv[0]))
-
     args = parse_args(sys.argv)
 
     setup_logging()

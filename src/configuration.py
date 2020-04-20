@@ -1,3 +1,4 @@
+import os, sys
 import toml
 import logging
 import wx
@@ -59,7 +60,14 @@ class Configuration:
 config = None
 
 def read_configuration(path=user_file):
+    logger = logging.getLogger(__name__)
     global config
     if config is None:
+        logger.info(f'Changing directory to {sys.argv[0]}')
+        os.chdir(os.path.dirname(sys.argv[0]))
+        logger.info(f'Getting configuration from file: {user_file}')
         config = Configuration(path=user_file)
+        logger.info(f'Configuration loaded: {config.config}')
     return config.get_configuration()
+
+
