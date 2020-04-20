@@ -52,7 +52,7 @@ def update():
             app_update.download()
             if app_update.is_downloaded():
                 logger.info('Extracting and restarting')
-                #app_update.extract_restart()
+                app_update.extract_restart()
                 d.Destroy()
         else:
             logger.info(
