@@ -40,11 +40,18 @@ class Reader:
 
     @staticmethod
     def read_node_type(node_xml):
-        xml_value = node_xml.find('GuiSettings').get('Plugin')
-        if xml_value is not None:
-            return xml_value.rpartition('.')[2]
+        gui_plugin = node_xml.find('GuiSettings').get('Plugin')
+        if gui_plugin is None:
+            engine_entrypoint = node_xml.find('EngineSettings').get('EngineDllEntryPoint')
+            if engine_entrypoint is None:
+                if node_xml.find('EngineSettings').get('Macro') is None:
+                    return 'Unknown'
+                else:
+                    return 'Macro'
+            else:
+                return engine_entrypoint
         else:
-            return 'Unknown'
+            return gui_plugin.rpartition('.')[2]
 
     @staticmethod
     def read_node_position(node_xml):
