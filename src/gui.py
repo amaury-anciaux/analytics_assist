@@ -121,7 +121,7 @@ class MainFrame(wx.Frame):
         for i in to_delete:
             self.tree.DeleteItem(i)
 
-        if data != True:
+        if len(data) != 0:
             for i in data:
 
                 display_item = [str(workflow_path)]
