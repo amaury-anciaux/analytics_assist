@@ -1,3 +1,8 @@
+# 0.2.2
+## Fixed
+- Alteryx node type identification
+- Balloons not displayed when there's no error
+
 # 0.2.1
 ## Added
 - When log level set to DEBUG, logs are written to analytics_assist.log
