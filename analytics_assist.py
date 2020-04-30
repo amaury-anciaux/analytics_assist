@@ -1,7 +1,6 @@
 import logging
 import sys
 import argparse
-import os
 import wx
 from src.gui import launch
 from src import __version__
@@ -10,6 +9,8 @@ from src.system import set_autostart, is_frozen_app
 from pyupdater.client import Client
 from client_config import ClientConfig
 
+import schedule
+import threading
 
 def parse_args(argv):
     """
@@ -97,10 +98,20 @@ def autostart():
             logger.info('Removing auto-start.')
             set_autostart(False)
 
+
+def start_scheduled_update():
+    schedule.run_pending()
+    threading.Timer(60, start_scheduled_update).start()
+
+
 if __name__ == '__main__':
     args = parse_args(sys.argv)
 
     setup_logging()
     update()
+
+    schedule.every().day.at("04:00").do(update)
+    start_scheduled_update()
+
     autostart()
     launch()

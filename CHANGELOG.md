@@ -1,3 +1,7 @@
+# 0.3
+## Added
+- App checks for updates every day at 4am
+
 # 0.2.2
 ## Fixed
 - Alteryx node type identification
