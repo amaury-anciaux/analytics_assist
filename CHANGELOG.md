@@ -1,3 +1,7 @@
+# 0.3.1
+## Fixed
+- Remove progress update window that was crashing the app
+
 # 0.3
 ## Added
 - App checks for updates every day at 4am
