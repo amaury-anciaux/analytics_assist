@@ -6,3 +6,4 @@ toml
 pyinstaller
 pyupdater
 winreg
+schedule

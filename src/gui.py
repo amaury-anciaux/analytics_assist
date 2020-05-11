@@ -9,7 +9,7 @@ from src.rules.rules import get_error_fields
 from src import __version__
 from pathlib import Path
 import ctypes
-
+from src.update import init_update
 
 class CheckResultModel(dv.PyDataViewModel):
     def __init__(self, data):
@@ -269,6 +269,7 @@ def launch():
 
     # Start watcher
     thread = start_filewatch(frm.update_tree)
+    init_update()
 
     app.MainLoop()
     thread.stop()
